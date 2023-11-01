@@ -1,10 +1,10 @@
-package com.example.hellospring2;
+package com.example.junglespring;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class HelloSpring2ApplicationTests {
+class JungleSpringApplicationTests {
 
 	@Test
 	void contextLoads() {
