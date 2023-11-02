@@ -1,4 +1,4 @@
-package com.example.junglespring;
+package jungle;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
