@@ -34,7 +34,20 @@ dependencies {
 
 	//스웨거
 	implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
+	implementation 'org.testng:testng:7.1.0'
 
+	//jwt 토큰 관리
+	compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.2'
+	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'
+	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.2'
+//	implementation 'org.springframework.boot:spring-boot-starter-security'
+	//스프링 시큐리티
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+
+
+	//롬복 & 테스트
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

@@ -1,16 +1,20 @@
 package jungle.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import jungle.Domain.Post.Post;
-import jungle.Domain.Post.Dto.PostForm;
+import jungle.domain.Post.Dto.PostDeleteDto;
+import jungle.domain.Post.Dto.PostResponseDto;
+import jungle.domain.Post.Post;
+import jungle.domain.Post.Dto.PostDto;
+import jungle.security.Jwt.JwtUtil;
 import jungle.exception.AuthenticationException;
+import jungle.service.MemberService;
 import jungle.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -20,62 +24,48 @@ import java.util.Map;
 @RequestMapping("/post")
 public class PostController {
     private final PostService postService;
+    private final MemberService memberService;
+    private final JwtUtil jwtUtil;
 
+    //게시글 작성
     @PostMapping()
-    public Post create(@RequestHeader Map<String,String> headers, @Valid @RequestBody PostForm form, BindingResult result) {
+    public PostResponseDto create(@RequestHeader Map<String, String> headers, @Valid @RequestBody PostDto form, BindingResult result, HttpServletRequest request) {
         if (result.hasErrors()) {
             System.out.println(result.getAllErrors());
         }
-        log.info(headers.get("access_token"));
-        Post post = new Post();
-        post.setName(form.getName());
-        post.setPw(form.getPw());
-        post.setTitle(form.getTitle());
-        post.setContent(form.getContent());
-        post.setPostDate(LocalDateTime.now());
-        postService.create(post);
 
-        return post;
+        return postService.create(form, request);
     }
 
+    //게시글 수정
     @PutMapping()
-    public Post update(@Valid @RequestBody PostForm form, BindingResult result) throws AuthenticationException {
+    public PostResponseDto update(@Valid @RequestBody PostDto form, BindingResult result, HttpServletRequest request) throws AuthenticationException {
         if (result.hasErrors()) {
             System.out.println(result.getAllErrors());
         }
-        Post post = postService.findById(form.getId());
-        if (post != null && post.getPw().equals(form.getPw())) {
-            post.setName(form.getName());
-            post.setTitle(form.getTitle());
-            post.setContent(form.getContent());
-            post.setPostDate(LocalDateTime.now());
-            postService.create(post);
-        } else {
-            throw new AuthenticationException("인증 실패");
-        }
-        return post;
 
+        return postService.update(form,request);
     }
 
     @PostMapping("/delete")
-    public String delete(@Valid @RequestBody PostForm form, BindingResult result) throws AuthenticationException {
+    public String delete(@Valid @RequestBody PostDeleteDto postDeleteDto, BindingResult result, HttpServletRequest request) throws AuthenticationException {
         if (result.hasErrors()) {
             System.out.println(result.getAllErrors());
         }
-        Post post = postService.findById(form.getId());
-        if (post != null && post.getPw().equals(form.getPw())) {
-            postService.delete(post);
-        } else {
-            throw new AuthenticationException("인증 실패");
-        }
-        return "success";
+        try {
+            postService.delete(postDeleteDto,request);
 
+        } catch (Exception e) {
+            log.error(e.toString());
+            throw new AuthenticationException("게시글 삭제 권한 없음");
+        }
+
+        return "success";
     }
 
 
-
-    @GetMapping()
-    public List<Post> lookup(@Valid PostForm form, BindingResult result) {
+    @GetMapping("")
+    public List<PostDto> lookup(@Valid PostDto form, BindingResult result) {
         return postService.findAllOrdered();
     }
 

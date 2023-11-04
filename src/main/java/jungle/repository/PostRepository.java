@@ -2,7 +2,7 @@ package jungle.repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jungle.Domain.Post.Post;
+import jungle.domain.Post.Post;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +20,7 @@ public class PostRepository {
 
     public void delete(Post post) {
 
-        em.flush();
+        em.remove(post);
 
     }
 
@@ -33,7 +33,7 @@ public class PostRepository {
     }
 
     public List<Post> findAllOrdered() {
-        return em.createQuery("select i from Post i order by i.postDate", Post.class).getResultList();
+        return em.createQuery("select i from Post i order by i.createdAt", Post.class).getResultList();
     }
 
 
