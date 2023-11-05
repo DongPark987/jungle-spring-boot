@@ -1,6 +1,7 @@
 package jungle.domain.Member;
 
 import jakarta.persistence.*;
+import jungle.domain.Comment.Comment;
 import jungle.domain.Post.Post;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,6 +36,10 @@ public class Member {
 
     @OneToMany(mappedBy = "member")
     private List<Post> posts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    private List<Comment> comments = new ArrayList<>();
+
 
     public Member(String username, String password, String email, MemberRoleEnum role) {
         this.username = username;

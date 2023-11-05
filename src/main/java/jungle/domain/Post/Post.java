@@ -15,7 +15,7 @@ public class Post extends Timestamped {
     // ID가 자동으로 생성 및 증가합니다.
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long post_id;
 
     @Column(nullable = false)
     private String title;
