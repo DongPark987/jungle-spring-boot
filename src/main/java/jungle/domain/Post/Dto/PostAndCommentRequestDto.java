@@ -23,5 +23,4 @@ public class PostAndCommentRequestDto {
 
     List<CommentResponseDto> comment_list = new ArrayList<>();
 
-
 }

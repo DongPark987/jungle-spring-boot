@@ -131,8 +131,12 @@ public class PostService {
         return postResponseDtoList;
     }
 
-    public Post findById(Long id) {
-        return postRepository.findOne(id);
+    public PostResponseDto findById(Long id) {
+
+        Post post = postRepository.findOne(id);
+
+
+        return new PostResponseDto(post.getPost_id(),post.getMember().getUsername(),post.getTitle(),post.getContent(),post.getCreatedAt(),post.getModifiedAt());
     }
 
 

@@ -70,7 +70,7 @@ public class PostController {
     }
 
 
-    @GetMapping("")
+    @GetMapping()
     public List<PostAndCommentRequestDto> lookup(@Valid PostRequestDto form, BindingResult result) {
         List<PostAndCommentRequestDto> postAndCommentRequestDtoList = new ArrayList<>();
         List<PostResponseDto> postResponseDtoList = postService.findAllOrdered();
@@ -82,8 +82,12 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
-    public Post lookupById(@PathVariable("postId") Long postId) {
-        return postService.findById(postId);
+    public PostAndCommentRequestDto lookupById(@PathVariable("postId") Long postId) {
+        PostResponseDto post= postService.findById(postId);
+        List<CommentResponseDto> commentList = commentService.findAllByPostId(postId);
+
+        return new PostAndCommentRequestDto(post.getId(),post.getName(),post.getTitle(),post.getContent(),commentList);
+
     }
 
 }
