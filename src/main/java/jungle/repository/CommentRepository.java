@@ -47,7 +47,7 @@ public class CommentRepository {
 
         for (Comment i : commentList) {
             commentResponseDtoList.add(new CommentResponseDto(i.getCommentId(), i.getPost().getPost_id(),
-                    i.getMember().getId(), i.getContent(), i.getCreatedAt(), i.getModifiedAt()));
+                    i.getMember().getId(), i.getContent(),i.getLikeCnt(),i.getDislike() ,i.getCreatedAt(), i.getModifiedAt()));
         }
 
         return commentResponseDtoList;

@@ -5,6 +5,8 @@ import jungle.domain.Member.Dto.LoginRequestDto;
 import jungle.domain.Member.Dto.SignupRequestDto;
 import jungle.domain.Member.Member;
 import jungle.domain.Member.MemberRoleEnum;
+import jungle.exception.ErrorCode.UserErrorCode;
+import jungle.exception.RestApiException;
 import jungle.security.Jwt.JwtUtil;
 import jungle.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +34,7 @@ public class MemberService {
         // 회원 중복 확인
         Optional<Member> found = userRepository.findByUsername(username);
         if (found.isPresent()) {
-            throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
+            throw new RestApiException(UserErrorCode.DUPLICATE_USER);
         }
 
         // 사용자 ROLE 확인
@@ -54,13 +56,12 @@ public class MemberService {
         String password = loginRequestDto.getPassword();
         // 사용자 확인
         Member member = userRepository.findByUsername(username).orElseThrow(
-                () -> new IllegalArgumentException("등록된 사용자가 없습니다.")
-        );
-
+                () -> new RestApiException(UserErrorCode.INVALID_USERNAME));
         // 비밀번호 확인
         if (!member.getPassword().equals(password)) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new RestApiException(UserErrorCode.INVALID_PASSWORD);
         }
+        //토큰 발급
         String token = jwtUtil.createToken(member.getUsername(), member.getRole());
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
         log.info("발급토큰: " + token);
@@ -68,7 +69,7 @@ public class MemberService {
 
     public Member findMemberByName(String username) {
         return userRepository.findByUsername(username).orElseThrow(
-                () -> new IllegalArgumentException("등록된 사용자가 없습니다.")
+                () -> new RestApiException(UserErrorCode.INACTIVE_USER)
         );
     }
 }

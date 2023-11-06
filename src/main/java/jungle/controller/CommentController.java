@@ -5,19 +5,16 @@ import jakarta.validation.Valid;
 import jungle.domain.Comment.Dto.CommentDeleteDto;
 import jungle.domain.Comment.Dto.CommentRequestDto;
 import jungle.domain.Comment.Dto.CommentResponseDto;
-import jungle.domain.Post.Dto.PostDeleteDto;
-import jungle.domain.Post.Dto.PostResponseDto;
-import jungle.domain.Post.Post;
-import jungle.exception.AuthenticationException;
-import jungle.security.Jwt.JwtUtil;
+import jungle.domain.CommonDto.CommonResponseDto;
+import jungle.exception.ErrorCode.UserErrorCode;
+import jungle.exception.RestApiException;
 import jungle.service.CommentService;
-import jungle.service.MemberService;
-import jungle.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
+
 import java.util.Map;
 
 @Slf4j
@@ -30,33 +27,26 @@ public class CommentController {
     @PostMapping()
     public CommentResponseDto create(@RequestHeader Map<String, String> headers, @Valid @RequestBody CommentRequestDto form, BindingResult result, HttpServletRequest request) {
         if (result.hasErrors()) {
-            System.out.println(result.getAllErrors());
+            throw new RestApiException(UserErrorCode.INVALID_REQUEST);
         }
         return commentService.create(form, request);
     }
     //게시글 수정
     @PutMapping()
-    public CommentResponseDto update(@Valid @RequestBody CommentRequestDto form, BindingResult result, HttpServletRequest request) throws AuthenticationException {
+    public CommentResponseDto update(@Valid @RequestBody CommentRequestDto form, BindingResult result, HttpServletRequest request){
         if (result.hasErrors()) {
-            System.out.println(result.getAllErrors());
+            throw new RestApiException(UserErrorCode.INVALID_REQUEST);
         }
         return commentService.update(form,request);
     }
 
     @PostMapping("/delete")
-    public String delete(@Valid @RequestBody CommentDeleteDto commentDeleteDto, BindingResult result, HttpServletRequest request) throws AuthenticationException {
+    public ResponseEntity<CommonResponseDto> delete(@Valid @RequestBody CommentDeleteDto commentDeleteDto, BindingResult result, HttpServletRequest request){
         if (result.hasErrors()) {
-            System.out.println(result.getAllErrors());
+            throw new RestApiException(UserErrorCode.INVALID_REQUEST);
         }
-        try {
-            commentService.delete(commentDeleteDto,request);
-
-        } catch (Exception e) {
-            log.error(e.toString());
-            throw new AuthenticationException("코멘트 삭제 권한 없음");
-        }
-
-        return "success";
+        commentService.delete(commentDeleteDto,request);
+        return ResponseEntity.ok(new CommonResponseDto("댓글 삭제 성공", 200));
     }
 
 }

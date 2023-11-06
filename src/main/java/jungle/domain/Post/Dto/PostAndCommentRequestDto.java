@@ -1,7 +1,5 @@
 package jungle.domain.Post.Dto;
 
-import jakarta.validation.constraints.NotEmpty;
-import jungle.domain.Comment.Dto.CommentRequestDto;
 import jungle.domain.Comment.Dto.CommentResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,9 +15,12 @@ import java.util.List;
 public class PostAndCommentRequestDto {
 
     private  Long post_id;
-    private String post_name;
+    private String member_name;
     private String title;
     private String content;
+
+    private long like_cnt;
+    private long dislike_cnt;
 
     List<CommentResponseDto> comment_list = new ArrayList<>();
 

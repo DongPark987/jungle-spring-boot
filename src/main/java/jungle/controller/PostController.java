@@ -2,20 +2,21 @@ package jungle.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import jungle.domain.Comment.Comment;
 import jungle.domain.Comment.Dto.CommentResponseDto;
+import jungle.domain.CommonDto.CommonResponseDto;
 import jungle.domain.Post.Dto.PostAndCommentRequestDto;
 import jungle.domain.Post.Dto.PostDeleteDto;
 import jungle.domain.Post.Dto.PostResponseDto;
-import jungle.domain.Post.Post;
 import jungle.domain.Post.Dto.PostRequestDto;
+import jungle.exception.ErrorCode.UserErrorCode;
+import jungle.exception.RestApiException;
 import jungle.security.Jwt.JwtUtil;
-import jungle.exception.AuthenticationException;
 import jungle.service.CommentService;
 import jungle.service.MemberService;
 import jungle.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +38,7 @@ public class PostController {
     @PostMapping()
     public PostResponseDto create(@RequestHeader Map<String, String> headers, @Valid @RequestBody PostRequestDto form, BindingResult result, HttpServletRequest request) {
         if (result.hasErrors()) {
-            System.out.println(result.getAllErrors());
+            throw new RestApiException(UserErrorCode.INVALID_REQUEST);
         }
 
         return postService.create(form, request);
@@ -45,38 +46,30 @@ public class PostController {
 
     //게시글 수정
     @PutMapping()
-    public PostResponseDto update(@Valid @RequestBody PostRequestDto form, BindingResult result, HttpServletRequest request) throws AuthenticationException {
+    public PostResponseDto update(@Valid @RequestBody PostRequestDto form, BindingResult result, HttpServletRequest request){
         if (result.hasErrors()) {
-            System.out.println(result.getAllErrors());
+            throw new RestApiException(UserErrorCode.INVALID_REQUEST);
         }
-
         return postService.update(form,request);
     }
 
     @PostMapping("/delete")
-    public String delete(@Valid @RequestBody PostDeleteDto postDeleteDto, BindingResult result, HttpServletRequest request) throws AuthenticationException {
+    public ResponseEntity<CommonResponseDto> delete(@Valid @RequestBody PostDeleteDto postDeleteDto, BindingResult result, HttpServletRequest request){
         if (result.hasErrors()) {
-            System.out.println(result.getAllErrors());
+            throw new RestApiException(UserErrorCode.INVALID_REQUEST);
         }
-        try {
-            postService.delete(postDeleteDto,request);
-
-        } catch (Exception e) {
-            log.error(e.toString());
-            throw new AuthenticationException("게시글 삭제 권한 없음");
-        }
-
-        return "success";
+        postService.delete(postDeleteDto,request);
+        return ResponseEntity.ok(new CommonResponseDto("게시글 삭제 성공", 200));
     }
 
-
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     @GetMapping()
     public List<PostAndCommentRequestDto> lookup(@Valid PostRequestDto form, BindingResult result) {
         List<PostAndCommentRequestDto> postAndCommentRequestDtoList = new ArrayList<>();
         List<PostResponseDto> postResponseDtoList = postService.findAllOrdered();
         for(PostResponseDto i: postResponseDtoList){
-            List<CommentResponseDto> commentResponseDtoList = commentService.findAllByPostId(i.getId());
-            postAndCommentRequestDtoList.add(new PostAndCommentRequestDto(i.getId(),i.getName(),i.getTitle(),i.getContent(),commentResponseDtoList));
+            List<CommentResponseDto> commentResponseDtoList = commentService.findAllByPostId(i.getPost_id());
+            postAndCommentRequestDtoList.add(new PostAndCommentRequestDto(i.getPost_id(),i.getName(),i.getTitle(),i.getContent(),i.getLike_cnt(),i.getDislike_cnt(),commentResponseDtoList));
         }
         return postAndCommentRequestDtoList;
     }
@@ -86,7 +79,7 @@ public class PostController {
         PostResponseDto post= postService.findById(postId);
         List<CommentResponseDto> commentList = commentService.findAllByPostId(postId);
 
-        return new PostAndCommentRequestDto(post.getId(),post.getName(),post.getTitle(),post.getContent(),commentList);
+        return new PostAndCommentRequestDto(post.getPost_id(),post.getName(),post.getTitle(),post.getContent(),post.getLike_cnt(),post.getDislike_cnt(),commentList);
 
     }
 

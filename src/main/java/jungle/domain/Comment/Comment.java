@@ -35,6 +35,10 @@ public class Comment extends Timestamped {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @Column(name = "like_cnt")
+    long likeCnt = 0;
+    @Column(name = "dislike_cnt")
+    long dislike = 0;
 
     public Comment(String content, Post post, Member member) {
         this.content = content;

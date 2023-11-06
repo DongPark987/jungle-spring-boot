@@ -15,6 +15,9 @@ public class CommentResponseDto {
     private Long member_id;
     private String content;
 
+    private long like_cnt;
+    private long dislike_cnt;
+
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 

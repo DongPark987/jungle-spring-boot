@@ -2,14 +2,20 @@ package jungle.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jungle.domain.CommonDto.CommonResponseDto;
 import jungle.domain.Member.Dto.LoginRequestDto;
 import jungle.domain.Member.Dto.SignupRequestDto;
+import jungle.exception.RestApiException;
+import jungle.exception.ErrorCode.UserErrorCode;
 import jungle.security.Jwt.JwtUtil;
 import jungle.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,33 +37,24 @@ public class MemberController {
 //    }
 
     @PostMapping("/signup")
-    public String signup(@Valid @RequestBody SignupRequestDto signupRequestDto, BindingResult result) {
+    public ResponseEntity<CommonResponseDto> signup(@Valid @RequestBody SignupRequestDto signupRequestDto, BindingResult result) {
         if (result.hasErrors()) {
-            System.out.println(result.getAllErrors());
-            return "Fail";
+            return ResponseEntity.badRequest().body(new CommonResponseDto("유효하지 않은 가입정보 입니다.",400));
         }
-        try {
-            memberService.signup(signupRequestDto);
-        }catch (Exception e) {
-            log.error(e.toString());
-            return "Fail";
-        }
-        return "success";
+        memberService.signup(signupRequestDto);
+        return ResponseEntity.ok(new CommonResponseDto("회원가입 성공", 200));
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequestDto loginRequestDto,  BindingResult result, HttpServletResponse response) {
+    public ResponseEntity<CommonResponseDto> login(@RequestBody LoginRequestDto loginRequestDto, BindingResult result, HttpServletResponse response) {
         if (result.hasErrors()) {
             System.out.println(result.getAllErrors());
-            return "Fail";
+            throw new RestApiException(UserErrorCode.INACTIVE_USER);
         }
-        try {
-            memberService.login(loginRequestDto,response);
-        }catch (Exception e) {
-            log.error(e.toString());
-            return "Fail";
-        }
-        return "success";
+
+        memberService.login(loginRequestDto,response);
+
+        return ResponseEntity.ok(new CommonResponseDto("로그인 성공", 200));
     }
 
 
